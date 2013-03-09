@@ -9,6 +9,15 @@ Register your application to [launch from a custom URL scheme](http://iphonedeve
 Here's how it all looks together:
 
 ``` objective-c
+[[AFTumblrAPIClient sharedClient] authenticateWithCompletion:^{
+    [[AFTumblrAPIClient sharedClient] getBlogNamesWithSuccess:^(NSArray *blogsArray) {
+            
+        NSLog(@"BLOGS: %@", blogsArray);
+            
+    } withFailure:^{
+            
+    }];
+}];
 ```
 
 ## Contact
