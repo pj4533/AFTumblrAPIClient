@@ -9,6 +9,10 @@
 #import "SGSViewController.h"
 #import "AFTumblrAPIClient.h"
 
+NSString * const kTumblrAPITokenString = @"YOUR-KEY-HERE";
+NSString * const kTumblrAPISecretString = @"YOUR-SECRET-HERE";
+NSString * const kTumblrCallbackURLString = @"YOUR-SCHEME-HERE://success";
+
 @interface SGSViewController ()
 
 @end
@@ -19,15 +23,27 @@
 {
     [super viewDidLoad];
 
-    [[AFTumblrAPIClient sharedClient] authenticateWithCompletion:^{
-        [[AFTumblrAPIClient sharedClient] getBlogNamesWithSuccess:^(NSArray *blogsArray) {
+    AFTumblrAPIClient* tumblrClient = [[AFTumblrAPIClient alloc] initWithKey:kTumblrAPITokenString secret:kTumblrAPISecretString callbackUrlString:kTumblrCallbackURLString];
+    
+    if ([tumblrClient isAuthenticated]) {
+        [tumblrClient getBlogNamesWithSuccess:^(NSArray *blogsArray) {
             
             NSLog(@"BLOGS: %@", blogsArray);
             
         } withFailure:^{
             
         }];
-    }];
+    } else {
+        [tumblrClient authenticateWithCompletion:^{
+            [tumblrClient getBlogNamesWithSuccess:^(NSArray *blogsArray) {
+                
+                NSLog(@"BLOGS: %@", blogsArray);
+                
+            } withFailure:^{
+                
+            }];
+        }];
+    }
 }
 
 - (void)didReceiveMemoryWarning
