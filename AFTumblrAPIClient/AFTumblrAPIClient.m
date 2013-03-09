@@ -8,27 +8,44 @@
 #import "AFJSONRequestOperation.h"
 
 static NSString * const kTumblrAPIBaseURLString = @"http://api.tumblr.com/v2/";
-NSString * const kTumblrAPITokenString = @"--TOKEN HERE--";
-NSString * const kTumblrAPISecretString = @"--SECRET HERE--";
-NSString * const kTumblrCallbackURLString = @"--SCHEME HERE--://success";
 
 @interface AFTumblrAPIClient () {
+    NSString* _callbackUrlString;
+    NSString* _key;
+    NSString* _secret;
 }
 
 @end
 
 @implementation AFTumblrAPIClient
 
-+ (AFTumblrAPIClient *)sharedClient {
-    static AFTumblrAPIClient *_sharedClient = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        _sharedClient = [[AFTumblrAPIClient alloc] initWithBaseURL:[NSURL URLWithString:kTumblrAPIBaseURLString]
-                                                               key:kTumblrAPITokenString
-                                                            secret:kTumblrAPISecretString];
-    });
+
+- (id)initWithKey:(NSString *)key
+           secret:(NSString *)secret
+callbackUrlString:(NSString *)callbackUrlString {
+    self = [super initWithBaseURL:[NSURL URLWithString:kTumblrAPIBaseURLString] key:key secret:secret];
+    if (!self) {
+        return nil;
+    }
     
-    return _sharedClient;
+    _callbackUrlString = callbackUrlString;
+    _key = key;
+    _secret = secret;
+
+    NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSString* tokenkey = [currentDefaults objectForKey:@"oauth_token"];
+    NSString* tokensecret = [currentDefaults objectForKey:@"oauth_token_secret"];
+    if (tokenkey) {
+        self.accessToken = [[AFOAuth1Token alloc] initWithQueryString:[NSString stringWithFormat:@"oauth_token=%@&oauth_token_secret=%@", tokenkey, tokensecret]];
+    }
+    
+    [AFJSONRequestOperation addAcceptableContentTypes:[NSSet setWithObject:@"application/x-www-form-urlencoded"]];
+    
+    [self registerHTTPOperationClass:[AFJSONRequestOperation class]];
+    
+    return self;
+
 }
 
 - (NSMutableURLRequest *)requestWithMethod:(NSString *)method
@@ -47,28 +64,6 @@ NSString * const kTumblrCallbackURLString = @"--SCHEME HERE--://success";
     }
     
     return request;
-}
-
-
-- (id)initWithBaseURL:(NSURL *)url key:(NSString *)key secret:(NSString *)secret {
-    self = [super initWithBaseURL:url key:key secret:secret];
-    if (!self) {
-        return nil;
-    }
-
-    NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
-
-    NSString* tokenkey = [currentDefaults objectForKey:@"oauth_token"];
-    NSString* tokensecret = [currentDefaults objectForKey:@"oauth_token_secret"];
-    if (tokenkey) {
-        self.accessToken = [[AFOAuth1Token alloc] initWithQueryString:[NSString stringWithFormat:@"oauth_token=%@&oauth_token_secret=%@", tokenkey, tokensecret]];
-    }
-
-    [AFJSONRequestOperation addAcceptableContentTypes:[NSSet setWithObject:@"application/x-www-form-urlencoded"]];
-    
-    [self registerHTTPOperationClass:[AFJSONRequestOperation class]];
-    
-    return self;
 }
 
 - (void)acquireOAuthAccessTokenWithPath:(NSString *)path
@@ -118,11 +113,11 @@ NSString * const kTumblrCallbackURLString = @"--SCHEME HERE--://success";
 
 - (void) authenticateWithCompletion:(void (^)())completion {
     AFTumblrAPIClient* oauthClient = [[AFTumblrAPIClient alloc] initWithBaseURL:[NSURL URLWithString:@"http://www.tumblr.com/"]
-                                                                            key:kTumblrAPITokenString
-                                                                         secret:kTumblrAPISecretString];
+                                                                            key:_key
+                                                                         secret:_secret];
     [oauthClient authorizeUsingOAuthWithRequestTokenPath:@"oauth/request_token"
                                    userAuthorizationPath:@"oauth/authorize"
-                                             callbackURL:[NSURL URLWithString:kTumblrCallbackURLString]
+                                             callbackURL:[NSURL URLWithString:_callbackUrlString]
                                          accessTokenPath:@"oauth/access_token"
                                             accessMethod:@"POST"
                                                  success:^(AFOAuth1Token *accessToken) {

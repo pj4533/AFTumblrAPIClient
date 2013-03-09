@@ -6,12 +6,11 @@
 
 #import "AFOAuth1Client.h"
 
-extern NSString * const kTumblrAPITokenString;
-extern NSString * const kTumblrAPISecretString;
-
 @interface AFTumblrAPIClient : AFOAuth1Client
 
-+ (AFTumblrAPIClient *)sharedClient;
+- (id)initWithKey:(NSString *)key
+           secret:(NSString *)secret
+callbackUrlString:(NSString *)callbackUrlString;
 
 - (BOOL) isAuthenticated;
 - (void) authenticateWithCompletion:(void (^)())completion;
