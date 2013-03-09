@@ -9,15 +9,38 @@ Register your application to [launch from a custom URL scheme](http://iphonedeve
 Here's how it all looks together:
 
 ``` objective-c
-[[AFTumblrAPIClient sharedClient] authenticateWithCompletion:^{
-    [[AFTumblrAPIClient sharedClient] getBlogNamesWithSuccess:^(NSArray *blogsArray) {
+// First create the client
+AFTumblrAPIClient* tumblrClient = [[AFTumblrAPIClient alloc] initWithKey:kTumblrAPITokenString
+                                                                  secret:kTumblrAPISecretString
+                                                       callbackUrlString:kTumblrCallbackURLString];
+    
+    
+// Check if we previously authenticated
+if ([tumblrClient isAuthenticated]) {
+        
+    // If so, just make a call
+    [tumblrClient getBlogNamesWithSuccess:^(NSArray *blogsArray) {
             
         NSLog(@"BLOGS: %@", blogsArray);
             
     } withFailure:^{
             
     }];
-}];
+} else {
+        
+    // If not, authenticate
+    [tumblrClient authenticateWithCompletion:^{
+            
+        // Then make a call
+        [tumblrClient getBlogNamesWithSuccess:^(NSArray *blogsArray) {
+                
+            NSLog(@"BLOGS: %@", blogsArray);
+                
+        } withFailure:^{
+                
+        }];
+    }];
+}
 ```
 
 ## Contact

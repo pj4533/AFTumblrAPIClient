@@ -23,9 +23,16 @@ NSString * const kTumblrCallbackURLString = @"YOUR-SCHEME-HERE://success";
 {
     [super viewDidLoad];
 
-    AFTumblrAPIClient* tumblrClient = [[AFTumblrAPIClient alloc] initWithKey:kTumblrAPITokenString secret:kTumblrAPISecretString callbackUrlString:kTumblrCallbackURLString];
+    // First create the client
+    AFTumblrAPIClient* tumblrClient = [[AFTumblrAPIClient alloc] initWithKey:kTumblrAPITokenString
+                                                                      secret:kTumblrAPISecretString
+                                                           callbackUrlString:kTumblrCallbackURLString];
     
+    
+    // Check if we previously authenticated
     if ([tumblrClient isAuthenticated]) {
+        
+        // If so, just make a call
         [tumblrClient getBlogNamesWithSuccess:^(NSArray *blogsArray) {
             
             NSLog(@"BLOGS: %@", blogsArray);
@@ -34,7 +41,11 @@ NSString * const kTumblrCallbackURLString = @"YOUR-SCHEME-HERE://success";
             
         }];
     } else {
+        
+        // If not, authenticate
         [tumblrClient authenticateWithCompletion:^{
+            
+            // Then make a call
             [tumblrClient getBlogNamesWithSuccess:^(NSArray *blogsArray) {
                 
                 NSLog(@"BLOGS: %@", blogsArray);
