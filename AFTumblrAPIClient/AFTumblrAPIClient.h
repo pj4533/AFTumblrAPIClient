@@ -25,4 +25,13 @@ callbackUrlString:(NSString *)callbackUrlString;
                    success:(void (^)(AFHTTPRequestOperation *operation, id responseObject))success
                    failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure;
 
+- (void) postPhotoWithData:(NSData *)photoData
+                  withTags:(NSString *)tags
+                 withState:(NSString*)state
+          withClickThruUrl:(NSString *)clickThruUrl
+               withCaption:(NSString *)captionText
+          intoBlogHostName:(NSString *)blogHostName
+                   success:(void (^)(AFHTTPRequestOperation *operation, id responseObject))success
+                   failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure;
+
 @end

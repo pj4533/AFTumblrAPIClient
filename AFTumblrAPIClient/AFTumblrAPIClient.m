@@ -146,20 +146,22 @@ callbackUrlString:(NSString *)callbackUrlString {
 
 - (void) postPhotoWithData:(NSData *)photoData
                   withTags:(NSString *)tags
+                 withState:(NSString*)state
           withClickThruUrl:(NSString *)clickThruUrl
                withCaption:(NSString *)captionText
           intoBlogHostName:(NSString *)blogHostName
                    success:(void (^)(AFHTTPRequestOperation *operation, id responseObject))success
-                   failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure;
+                   failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure
 {
-
-    NSDictionary* params = @{
+    
+    NSMutableDictionary* params = [@{
                              @"type" : @"photo",
                              @"tags" : tags,
                              @"caption" : captionText
-                             };
+                             } mutableCopy];
     
-    
+    if (state)
+        params[@"state"] = state;
     
     NSMutableURLRequest* request = [self multipartFormRequestWithMethod:@"POST"
                                                                    path:[NSString stringWithFormat:@"blog/%@/post", blogHostName]
@@ -167,9 +169,20 @@ callbackUrlString:(NSString *)callbackUrlString {
                                               constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
                                                   [formData appendPartWithFileData:photoData name:@"data" fileName:@"photo.jpg" mimeType:@"image/jpg"];
                                               }];
-
+    
 	AFHTTPRequestOperation *operation = [self HTTPRequestOperationWithRequest:request success:success failure:failure];
     [self enqueueHTTPRequestOperation:operation];
+}
+
+- (void) postPhotoWithData:(NSData *)photoData
+                  withTags:(NSString *)tags
+          withClickThruUrl:(NSString *)clickThruUrl
+               withCaption:(NSString *)captionText
+          intoBlogHostName:(NSString *)blogHostName
+                   success:(void (^)(AFHTTPRequestOperation *operation, id responseObject))success
+                   failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure
+{
+    [self postPhotoWithData:photoData withTags:tags withState:nil withClickThruUrl:clickThruUrl withCaption:captionText intoBlogHostName:blogHostName success:success failure:failure];
 }
 
 @end
