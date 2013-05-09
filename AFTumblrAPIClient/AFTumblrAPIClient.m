@@ -69,7 +69,7 @@ callbackUrlString:(NSString *)callbackUrlString {
 - (void)acquireOAuthAccessTokenWithPath:(NSString *)path
                            requestToken:(AFOAuth1Token *)requestToken
                            accessMethod:(NSString *)accessMethod
-                                success:(void (^)(AFOAuth1Token *accessToken))success
+                                success:(void (^)(AFOAuth1Token *accessToken, id responseObject))success
                                 failure:(void (^)(NSError *error))failure
 {
     self.accessToken = requestToken;
@@ -81,7 +81,8 @@ callbackUrlString:(NSString *)callbackUrlString {
                                     callbackURL:(NSURL *)callbackURL
                                 accessTokenPath:(NSString *)accessTokenPath
                                    accessMethod:(NSString *)accessMethod
-                                        success:(void (^)(AFOAuth1Token *accessToken))success
+                                          scope:(NSString*)scope
+                                        success:(void (^)(AFOAuth1Token *accessToken, id responseObject))success
                                         failure:(void (^)(NSError *error))failure {
 
     
@@ -90,15 +91,14 @@ callbackUrlString:(NSString *)callbackUrlString {
                                        callbackURL:callbackURL
                                    accessTokenPath:accessTokenPath
                                       accessMethod:accessMethod
-                                           success:^(AFOAuth1Token *accessToken) {
-                                               
+                                             scope:scope
+                                           success:^(AFOAuth1Token *accessToken, id responseObject) {
                                                NSUserDefaults *currentDefaults = [NSUserDefaults standardUserDefaults];
                                                [currentDefaults setObject:accessToken.key forKey:@"oauth_token"];
                                                [currentDefaults setObject:accessToken.secret forKey:@"oauth_token_secret"];
                                                [currentDefaults synchronize];
-                                               success(accessToken);
-                                           }
-                                           failure:failure];
+                                               success(accessToken,responseObject);
+                                           } failure:failure];
 }
 
 - (BOOL) isAuthenticated {
@@ -120,7 +120,8 @@ callbackUrlString:(NSString *)callbackUrlString {
                                              callbackURL:[NSURL URLWithString:_callbackUrlString]
                                          accessTokenPath:@"oauth/access_token"
                                             accessMethod:@"POST"
-                                                 success:^(AFOAuth1Token *accessToken) {
+                                                   scope:nil
+                                                 success:^(AFOAuth1Token *accessToken,id responseObject) {
                                                      self.accessToken = accessToken;
                                                      completion();
                                                  }
