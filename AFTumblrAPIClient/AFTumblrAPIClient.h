@@ -34,4 +34,12 @@ callbackUrlString:(NSString *)callbackUrlString;
                    success:(void (^)(AFHTTPRequestOperation *operation, id responseObject))success
                    failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure;
 
+- (void) postVideoWithData:(NSData *)videoData
+                  withTags:(NSString *)tags
+          withClickThruUrl:(NSString *)clickThruUrl
+               withCaption:(NSString *)captionText
+          intoBlogHostName:(NSString *)blogHostName
+                   success:(void (^)(AFHTTPRequestOperation *operation, id responseObject))success
+                   failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure;
+
 @end
